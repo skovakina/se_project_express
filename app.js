@@ -6,11 +6,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const { PORT = 3000 } = process.env;
 
-mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db", {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-});
+mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
