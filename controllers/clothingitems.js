@@ -1,15 +1,10 @@
 const ClothingItem = require("../models/clothingitem");
-const {
-  INVALID_DATA,
-  NOT_FOUND,
-  SERVER_ERROR,
-  ValidationError,
-} = require("../utils/errors");
+const { INVALID_DATA, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
 
 module.exports.getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => res.send({ data: items }))
-    .catch((err) =>
+    .catch(() =>
       res
         .status(SERVER_ERROR)
         .send({ message: "An error has occurred on the server." }),
@@ -23,11 +18,10 @@ module.exports.createItem = (req, res) => {
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(INVALID_DATA).send({ message: "Invalid data" });
-      } else {
-        return res
-          .status(SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -39,16 +33,15 @@ module.exports.deleteItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      res.send({ message: "Item delited" });
+      return res.send({ message: "Item delited" });
     })
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: "Invalid ID" });
-      } else {
-        return res
-          .status(SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -62,17 +55,15 @@ module.exports.likeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      res.send({ message: "item has been liked" });
+      return res.send({ message: "item has been liked" });
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: "Invalid ID" });
-      } else {
-        return res
-          .status(SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -86,17 +77,14 @@ module.exports.dislikeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-
-      res.send({ message: "item has been unliked" });
+      return res.send({ message: "item has been unliked" });
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: "Invalid ID" });
-      } else {
-        res
-          .status(SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
