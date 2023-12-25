@@ -24,8 +24,8 @@ app.use((req, res, next) => {
 app.use("/", require("./routes/users"));
 app.use("/", require("./routes/clothingitems"));
 
-app.use((req, res, next) => {
-  res.status(404).send("Sorry can't find that!");
+app.use((req, res) => {
+  res.status(NOT_FOUND).send("Sorry can't find that!");
 });
 
 app.listen(PORT, () => {
