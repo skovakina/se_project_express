@@ -14,13 +14,6 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "6585dbe5db2c62b047224c03",
-  };
-  next();
-});
-
 app.use("/", require("./routes/users"));
 app.use("/", require("./routes/clothingitems"));
 
