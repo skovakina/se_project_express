@@ -1,6 +1,14 @@
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = require("../utils/config");
 
-const { INVALID_DATA, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
+const {
+  INVALID_DATA,
+  NOT_FOUND,
+  SERVER_ERROR,
+  CONFLICT,
+} = require("../utils/errors");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -34,16 +42,44 @@ module.exports.getUser = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, avatar } = req.body;
+  User.findOne({ email: req.body.email }).then((user) => {
+    if (user) {
+      return res.status(CONFLICT).send({ message: "User already exists" });
+    }
 
-  User.create({ name, avatar })
-    .then((user) => res.send({ data: user }))
+    bcrypt.hash(req.body.password, 10).then((hash) =>
+      User.create({
+        name: req.body.name,
+        avatar: req.body.avatar,
+        email: req.body.email,
+        password: hash,
+      })
+        .then((user) => res.send({ _id: user._id, email: user.email }))
+        .catch((err) => {
+          if (err.name === "ValidationError") {
+            return res
+              .status(INVALID_DATA)
+              .send({ message: "Validation error" });
+          }
+          return res
+            .status(SERVER_ERROR)
+            .send({ message: "An error has occurred on the server." });
+        }),
+    );
+  });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        }),
+      });
+    })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(INVALID_DATA).send({ message: "Validation error" });
-      }
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server." });
+      res.status(401).send({ message: err.message });
     });
 };
