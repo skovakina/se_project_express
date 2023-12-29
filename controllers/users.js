@@ -104,3 +104,28 @@ module.exports.login = (req, res) => {
       res.status(401).send({ message: err.message });
     });
 };
+
+module.exports.updateUser = (req, res) => {
+  const { name, avatar } = req.body;
+  const userId = req.user._id;
+
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true },
+  )
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(INVALID_DATA).send({ message: "Validation error" });
+      }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
+    });
+};
