@@ -25,7 +25,6 @@ module.exports.getCurrentUser = (req, res) => {
   const userId = req.user._id;
   return User.findById(userId)
     .then((user) => {
-      console.log(user);
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
