@@ -41,4 +41,15 @@ const clothingItemSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("clothingitem", clothingItemSchema);
+clothingItemSchema.statics.findItem = function findItem(id) {
+  return this.findById(id).then((item) => {
+    if (!item) {
+      const error = new Error("Item not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    return item;
+  });
+};
+
+module.exports = mongoose.model("ClothingItem", clothingItemSchema);

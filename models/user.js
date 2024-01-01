@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
       message: "You must enter a valid URL",
     },
   },
-  passwoed: {
+  password: {
     type: String,
     required: true,
     select: false,

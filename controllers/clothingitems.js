@@ -1,5 +1,10 @@
 const ClothingItem = require("../models/clothingitem");
-const { INVALID_DATA, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
+const {
+  INVALID_DATA,
+  NOT_FOUND,
+  SERVER_ERROR,
+  FORBIDDEN,
+} = require("../utils/errors");
 
 module.exports.getItems = (req, res) => {
   ClothingItem.find({})
@@ -28,21 +33,25 @@ module.exports.createItem = (req, res) => {
 module.exports.deleteItem = (req, res) => {
   const id = req.params.itemId;
 
-  ClothingItem.findOneAndDelete({ _id: id })
-    .then((item) => {
-      if (!item) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
-      }
-      return res.send({ message: "Item delited" });
-    })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        return res.status(INVALID_DATA).send({ message: "Invalid ID" });
-      }
+  ClothingItem.findItem(id).then((item) => {
+    if (item.owner.toString() !== req.user._id.toString()) {
       return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server." });
-    });
+        .status(FORBIDDEN)
+        .send({ message: "You do not have permission to delete this item" });
+    }
+    return item
+      .remove()
+      .then(() => res.send({ message: "Item deleted" }))
+      .catch((err) => {
+        if (err.name === "CastError") {
+          res.status(INVALID_DATA).send({ message: "Invalid data" });
+        } else {
+          res
+            .status(SERVER_ERROR)
+            .send({ message: "An error has occurred on the server." });
+        }
+      });
+  });
 };
 
 module.exports.likeItem = (req, res) => {
@@ -70,7 +79,7 @@ module.exports.likeItem = (req, res) => {
 module.exports.dislikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
     .then((item) => {

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../utils/config");
+const { JWT_SECRET } = process.env;
 
 const handleAuthError = (res) => {
   res.status(401).send({ message: "Authorization Error" });
@@ -17,6 +17,7 @@ module.exports = (req, res, next) => {
   }
 
   const token = extractBearerToken(authorization);
+
   let payload;
 
   try {
@@ -24,7 +25,6 @@ module.exports = (req, res, next) => {
   } catch (err) {
     return handleAuthError(res);
   }
-
   req.user = payload;
 
   next();
