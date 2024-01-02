@@ -9,6 +9,7 @@ const {
   NOT_FOUND,
   SERVER_ERROR,
   CONFLICT,
+  UNAUTHORIZED,
 } = require("../utils/errors");
 
 module.exports.getUsers = (req, res) => {
@@ -47,33 +48,46 @@ module.exports.createUser = (req, res) => {
       .status(INVALID_DATA)
       .send({ message: "All fields are required" });
   }
-  User.findOne({ email: req.body.email }).then((user) => {
-    if (user) {
-      return res.status(CONFLICT).send({ message: "User already exists" });
-    }
+  return User.findOne({ email: req.body.email })
+    .then((user) => {
+      if (user) {
+        return res.status(CONFLICT).send({ message: "User already exists" });
+      }
 
-    bcrypt.hash(req.body.password, 10).then((hash) =>
-      User.create({
-        name: req.body.name,
-        avatar: req.body.avatar,
-        email: req.body.email,
-        password: hash,
-      })
-        .then((userNew) =>
-          res.send({ name: userNew.name, avatar: userNew.avatar }),
+      return bcrypt
+        .hash(req.body.password, 10)
+        .then((hash) =>
+          User.create({
+            name: req.body.name,
+            avatar: req.body.avatar,
+            email: req.body.email,
+            password: hash,
+          })
+            .then((userNew) =>
+              res.send({ name: userNew.name, avatar: userNew.avatar }),
+            )
+            .catch((err) => {
+              if (err.name === "ValidationError") {
+                return res
+                  .status(INVALID_DATA)
+                  .send({ message: "Validation error" });
+              }
+              return res
+                .status(SERVER_ERROR)
+                .send({ message: "An error has occurred on the server." });
+            }),
         )
-        .catch((err) => {
-          if (err.name === "ValidationError") {
-            return res
-              .status(INVALID_DATA)
-              .send({ message: "Validation error" });
-          }
-          return res
+        .catch(() =>
+          res
             .status(SERVER_ERROR)
-            .send({ message: "An error has occurred on the server." });
-        }),
+            .send({ message: "An error has occurred on the server." }),
+        );
+    })
+    .catch(() =>
+      res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." }),
     );
-  });
 };
 
 module.exports.login = (req, res) => {
@@ -85,10 +99,10 @@ module.exports.login = (req, res) => {
       .send({ message: "All fields are required" });
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error("Incorrect password or email"));
+        return Promise.reject(new Error("Incorrect email or password"));
       }
       return res.send({
         token: jwt.sign(
@@ -101,7 +115,14 @@ module.exports.login = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Incorrect email or password" });
+      }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 

@@ -33,25 +33,38 @@ module.exports.createItem = (req, res) => {
 module.exports.deleteItem = (req, res) => {
   const id = req.params.itemId;
 
-  ClothingItem.findItem(id).then((item) => {
-    if (item.owner.toString() !== req.user._id.toString()) {
+  ClothingItem.findById(id)
+    .then((item) => {
+      if (!item) {
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+
+      if (item.owner.toString() !== req.user._id.toString()) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "You do not have permission to delete this item" });
+      }
+
+      return ClothingItem.deleteOne({ _id: id })
+        .then(() => res.send({ message: "Item deleted" }))
+        .catch((err) => {
+          if (err.name === "CastError") {
+            res.status(INVALID_DATA).send({ message: "Invalid data" });
+          } else {
+            res
+              .status(SERVER_ERROR)
+              .send({ message: "An error has occurred on the server." });
+          }
+        });
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(INVALID_DATA).send({ message: "Invalid ID" });
+      }
       return res
-        .status(FORBIDDEN)
-        .send({ message: "You do not have permission to delete this item" });
-    }
-    return item
-      .remove()
-      .then(() => res.send({ message: "Item deleted" }))
-      .catch((err) => {
-        if (err.name === "CastError") {
-          res.status(INVALID_DATA).send({ message: "Invalid data" });
-        } else {
-          res
-            .status(SERVER_ERROR)
-            .send({ message: "An error has occurred on the server." });
-        }
-      });
-  });
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
+    });
 };
 
 module.exports.likeItem = (req, res) => {
