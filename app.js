@@ -25,5 +25,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`app is runnig at port ${PORT}`);
+  console.log(`app is runnig at port ${PORT}`); // eslint-disable-line
 });
