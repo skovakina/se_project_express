@@ -8,7 +8,7 @@ const {
 
 module.exports.getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.send({ data: items }))
+    .then((items) => res.send(items))
     .catch(() =>
       res
         .status(SERVER_ERROR)
@@ -19,7 +19,7 @@ module.exports.getItems = (req, res) => {
 module.exports.createItem = (req, res) => {
   const { name, weather, imageUrl, owner = req.user._id } = req.body;
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => res.send({ data: item }))
+    .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(INVALID_DATA).send({ message: "Invalid data" });
