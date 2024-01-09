@@ -77,7 +77,8 @@ module.exports.likeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      return res.send({ message: "item has been liked" });
+      // return res.send({ message: "item has been liked" });
+      return res.send(item);
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -99,7 +100,7 @@ module.exports.dislikeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      return res.send({ message: "item has been unliked" });
+      return res.send(item);
     })
     .catch((err) => {
       if (err.name === "CastError") {
