@@ -29,6 +29,7 @@ module.exports.getCurrentUser = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
+
       return res.send({ data: user });
     })
     .catch((err) => {
@@ -104,7 +105,14 @@ module.exports.login = (req, res) => {
       if (!user) {
         return Promise.reject(new Error("Incorrect email or password"));
       }
+
       return res.send({
+        user: {
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          _id: user.id,
+        },
         token: jwt.sign(
           { _id: user._id },
           NODE_ENV === "production" ? JWT_SECRET : "dev-secret",
