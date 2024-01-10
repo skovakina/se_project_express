@@ -18,6 +18,7 @@ module.exports.getItems = (req, res) => {
 
 module.exports.createItem = (req, res) => {
   const { name, weather, imageUrl, owner = req.user._id } = req.body;
+  console.log(req.body);
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.send(item))
     .catch((err) => {
