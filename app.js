@@ -6,6 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { NOT_FOUND } = require("./utils/errors");
+const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -23,6 +24,8 @@ app.use("/", require("./routes/clothingitems"));
 app.use((req, res) => {
   res.status(NOT_FOUND).send("Sorry can't find that!");
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`app is runnig at port ${PORT}`); // eslint-disable-line
