@@ -8,8 +8,13 @@ const {
 } = require("../controllers/clothingitems");
 const auth = require("../middlewares/auth");
 
+const {
+  validateCardBody,
+  // validateId,
+} = require("../middlewares/validation");
+
 router.get("/items", getItems);
-router.post("/items", auth, createItem);
+router.post("/items", validateCardBody, auth, createItem);
 router.delete("/items/:itemId", auth, deleteItem);
 
 router.put("/items/:itemId/likes", auth, likeItem);
