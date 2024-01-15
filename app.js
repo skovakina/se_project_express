@@ -9,6 +9,7 @@ require("dotenv").config();
 
 const { NOT_FOUND } = require("./utils/errors");
 const errorHandler = require("./middlewares/error-handler");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -20,12 +21,18 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+//Enable the request logger
+app.use(requestLogger);
+
+//routes
 app.use("/", require("./routes/users"));
 app.use("/", require("./routes/clothingitems"));
 
 app.use((req, res) => {
   res.status(NOT_FOUND).send("Sorry can't find that!");
 });
+// enabling the error logger
+app.use(errorLogger);
 // celebrate error handler
 app.use(errors());
 // centralized handler
