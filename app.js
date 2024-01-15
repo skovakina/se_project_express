@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const cors = require("cors");
+const { errors } = require("celebrate");
+
 require("dotenv").config();
 
 const { NOT_FOUND } = require("./utils/errors");
@@ -24,7 +26,9 @@ app.use("/", require("./routes/clothingitems"));
 app.use((req, res) => {
   res.status(NOT_FOUND).send("Sorry can't find that!");
 });
-
+// celebrate error handler
+app.use(errors());
+// centralized handler
 app.use(errorHandler);
 
 app.listen(PORT, () => {
