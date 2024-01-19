@@ -27,9 +27,9 @@ module.exports.createItem = (req, res, next) => {
 };
 
 module.exports.deleteItem = (req, res, next) => {
-  const id = req.params.itemId;
-
-  ClothingItem.findById(id)
+  const _id = req.params._id;
+  console.log(req.params);
+  ClothingItem.findById(_id)
     .then((item) => {
       if (!item) {
         throw new NotFoundError("Item not found");
@@ -41,7 +41,7 @@ module.exports.deleteItem = (req, res, next) => {
         );
       }
 
-      return ClothingItem.deleteOne({ _id: id })
+      return ClothingItem.deleteOne({ _id })
         .then(() => res.send({ message: "Item deleted" }))
         .catch((err) => {
           if (err.name === "CastError") {
@@ -62,7 +62,7 @@ module.exports.deleteItem = (req, res, next) => {
 
 module.exports.likeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
+    req.params._id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
@@ -84,7 +84,7 @@ module.exports.likeItem = (req, res, next) => {
 
 module.exports.dislikeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
+    req.params._id,
     { $pull: { likes: req.user._id } },
     { new: true },
   )

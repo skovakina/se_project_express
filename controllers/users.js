@@ -100,10 +100,10 @@ module.exports.login = (req, res, next) => {
 
 module.exports.updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
-  const userId = req.user._id;
+  const _id = req.user._id;
 
   User.findByIdAndUpdate(
-    userId,
+    _id,
     { name, avatar },
     { new: true, runValidators: true },
   )
