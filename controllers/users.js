@@ -1,21 +1,13 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  ConflictError,
-} = require("../utils/errors");
+
+const BadRequestError = require("../utils/BadRequestError");
+const NotFoundError = require("../utils/NotFoundError");
+const ConflictError = require("../utils/ConflictError");
+const UnauthorizedError = require("../utils/UnauthorizedError");
 
 const { NODE_ENV, JWT_SECRET } = process.env;
-
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(next);
-};
 
 module.exports.getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
@@ -56,6 +48,7 @@ module.exports.createUser = (req, res, next) => {
           if (err.name === "ValidationError") {
             next(new BadRequestError("Validation error"));
           }
+          next(err);
         });
     })
     .catch(next);
@@ -100,7 +93,7 @@ module.exports.login = (req, res, next) => {
 
 module.exports.updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
-  const _id = req.user._id;
+  const { _id } = req.user._id;
 
   User.findByIdAndUpdate(
     _id,
@@ -113,5 +106,10 @@ module.exports.updateUser = (req, res, next) => {
       }
       return res.send({ data: user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(new BadRequestError("invalid data"));
+      }
+      next(err);
+    });
 };

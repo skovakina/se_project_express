@@ -7,9 +7,9 @@ const { errors } = require("celebrate");
 
 require("dotenv").config();
 
-const { NOT_FOUND } = require("./utils/errors");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const NotFoundError = require("./utils/NotFoundError");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -21,16 +21,15 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//Enable the request logger
 app.use(requestLogger);
 
-//routes
 app.use("/", require("./routes/users"));
 app.use("/", require("./routes/clothingitems"));
 
-app.use((req, res) => {
-  res.status(NOT_FOUND).send("Sorry can't find that!");
+app.use((req, res, next) => {
+  next(new NotFoundError("Page not found"));
 });
+
 // enabling the error logger
 app.use(errorLogger);
 // celebrate error handler

@@ -1,11 +1,7 @@
 const ClothingItem = require("../models/clothingitem");
-const {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  ConflictError,
-} = require("../utils/errors");
+const BadRequestError = require("../utils/BadRequestError");
+const ForbiddenError = require("../utils/ForbiddenError");
+const NotFoundError = require("../utils/NotFoundError");
 
 module.exports.getItems = (req, res, next) => {
   ClothingItem.find({})
@@ -27,8 +23,7 @@ module.exports.createItem = (req, res, next) => {
 };
 
 module.exports.deleteItem = (req, res, next) => {
-  const _id = req.params._id;
-  console.log(req.params);
+  const { _id } = req.params._id;
   ClothingItem.findById(_id)
     .then((item) => {
       if (!item) {

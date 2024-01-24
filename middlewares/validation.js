@@ -19,7 +19,7 @@ module.exports.validateCardBody = celebrate({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
-    weather: Joi.string().required(),
+    weather: Joi.string().required().valid("hot", "warm", "cold"),
   }),
 });
 
@@ -52,6 +52,20 @@ module.exports.validateSignin = celebrate({
     }),
     password: Joi.string().required().messages({
       "string.empty": 'The "Password" field must be filled in',
+    }),
+  }),
+});
+
+module.exports.validateEditProfile = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+      "string.empty": 'The "name" field must be filled in',
+    }),
+    avatar: Joi.string().uri().required().messages({
+      "string.empty": 'The "Avatar" field must be filled in',
+      "string.uri": 'the "Avatar" field must be a valid url',
     }),
   }),
 });
